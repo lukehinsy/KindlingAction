@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stay Informed · Kindling Action</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --char:    #18150f;
+      --cream:   #f4ede0;
+      --ember:   #c95c1a;
+      --ember2:  #e8874a;
+      --ash:     #7a7060;
+      --sage:    #3d5a40;
+      --warm:    #ede3d0;
+      --smoke:   #2a2318;
+      --panel:   #211d15;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--char);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow-x: hidden;
+    }
+
+    /* grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(201,92,26,0.13) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .back-link {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ash);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.25s;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.1s forwards;
+    }
+    .back-link:hover { color: var(--cream); }
+
+    .left-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    .left-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.3s forwards;
+    }
+
+    .left-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 3.5vw, 4rem);
+      font-weight: 300;
+      line-height: 1.08;
+      color: var(--cream);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.45s forwards;
+    }
+
+    .left-title em {
+      font-style: italic;
+      color: var(--ember2);
+    }
+
+    .left-body {
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: var(--ash);
+      max-width: 36ch;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    /* three pillars */
+    .pillars {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.75s forwards;
+    }
+
+    .pillar {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .pillar-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ember);
+      flex-shrink: 0;
+      margin-top: 0.45em;
+    }
+
+    .pillar-text {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(244,237,224,0.55);
+    }
+
+    .pillar-text strong {
+      color: var(--cream);
+      font-weight: 400;
+    }
+
+    .left-footer {
+      font-size: 0.72rem;
+      color: rgba(122,112,96,0.4);
+      letter-spacing: 0.05em;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.9s forwards;
+    }
+
+    /* ── RIGHT PANEL (FORM) ── */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 4rem 4rem 5rem;
+      min-height: 100vh;
+    }
+
+    .form-header {
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+
+    .form-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+      font-size: 0.88rem;
+      color: var(--ash);
+      line-height: 1.6;
+    }
+
+    /* ── FORM ── */
+    .signup-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 440px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      opacity: 0;
+      animation: fadeUp 0.7s both;
+    }
+    .field:nth-child(1) { animation-delay: 0.6s; }
+    .field:nth-child(2) { animation-delay: 0.7s; }
+    .field:nth-child(3) { animation-delay: 0.8s; }
+    .field:nth-child(4) { animation-delay: 0.9s; }
+    .field:nth-child(5) { animation-delay: 1.0s; }
+    .field:nth-child(6) { animation-delay: 1.05s; }
+
+    label {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ash);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select,
+    textarea {
+      background: rgba(244,237,224,0.04);
+      border: 1px solid rgba(244,237,224,0.1);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 300;
+      padding: 0.85rem 1rem;
+      border-radius: 0;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder,
+    textarea::placeholder { color: rgba(122,112,96,0.5); }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--ember);
+      background: rgba(201,92,26,0.04);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    /* custom select arrow */
+    .select-wrap {
+      position: relative;
+    }
+    .select-wrap::after {
+      content: '↓';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ash);
+      pointer-events: none;
+      font-size: 0.85rem;
+    }
+    select option {
+      background: var(--smoke);
+      color: var(--cream);
+    }
+
+    /* checkboxes */
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .check-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: rgba(244,237,224,0.6);
+      letter-spacing: 0;
+      text-transform: none;
+      transition: color 0.25s;
+    }
+    .check-label:hover { color: var(--cream); }
+
+    .check-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      appearance: none;
+      border: 1px solid rgba(244,237,224,0.2);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .check-label input[type="checkbox"]:checked {
+      background: var(--ember);
+      border-color: var(--ember);
+    }
+    .check-label input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      width: 5px;
+      height: 9px;
+      border: 1.5px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    /* submit */
+    .submit-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.15s forwards;
+    }
+
+    .submit-btn {
+      background: var(--ember);
+      color: var(--cream);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      transition: background 0.3s, gap 0.3s;
+      width: 100%;
+    }
+    .submit-btn:hover { background: var(--ember2); gap: 1.1rem; }
+
+    .submit-note {
+      font-size: 0.73rem;
+      color: rgba(122,112,96,0.5);
+      line-height: 1.5;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-state {
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 440px;
+      opacity: 0;
+      animation: fadeUp 0.8s forwards;
+    }
+
+    .success-state.visible {
+      display: flex;
+    }
+
+    .success-icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--ember);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ember);
+      font-size: 1.4rem;
+    }
+
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.2;
+    }
+
+    .success-body {
+      font-size: 0.9rem;
+      color: var(--ash);
+      line-height: 1.75;
+      max-width: 36ch;
+    }
+
+    .success-back {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: border-color 0.25s;
+      width: fit-content;
+    }
+    .success-back:hover { border-color: var(--ember); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel {
+        position: relative;
+        height: auto;
+        padding: 3rem 2.5rem;
+        min-height: auto;
+      }
+      .left-content { padding: 2rem 0; }
+      .right-panel { padding: 3rem 2.5rem; }
+      .signup-form, .success-state { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       LEFT PANEL
+  ═══════════════════════════════════════ -->
+  <div class="left-panel">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M13 8H3M7 12l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+
+    <div class="left-content">
+      <p class="left-eyebrow">Early access</p>
+      <h1 class="left-title">
+        Be the<br>
+        <em>first spark.</em>
+      </h1>
+      <p class="left-body">
+        We're building the infrastructure for a new kind of collective action. You pledge only if enough others do. Organizations act only when it makes a difference.
+      </p>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="pillar-dot"></div>
+          <p class="pillar-text"><strong>No cost until conditions are met.</strong> Your commitment is real, but your card is never charged unless the campaign succeeds.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-dot"></div>
+          <p class="pillar-text"><strong>Verified outcomes, not promises.</strong> Every campaign condition has a defined, third-party verification pathway.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-dot"></div>
+          <p class="pillar-text"><strong>Built for people who believe small actions add up.</strong> Because they do — when they're coordinated.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="left-footer">Kindling Action · Early stage · Launching 2026</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       RIGHT PANEL — FORM
+  ═══════════════════════════════════════ -->
+  <div class="right-panel">
+
+    <div class="form-header">
+      <h2>Stay informed</h2>
+      <p>Tell us a little about yourself so we can keep you in the loop.</p>
+    </div>
+
+    <form class="signup-form" id="signupForm" novalidate>
+
+      <div class="field">
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" placeholder="First and last" autocomplete="name" />
+      </div>
+
+      <div class="field">
+        <label for="email">Email address <span style="color:var(--ember)">*</span></label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label for="role">I am primarily a…</label>
+        <div class="select-wrap">
+          <select id="role" name="role">
+            <option value="" disabled selected>Select one</option>
+            <option value="individual">Concerned individual</option>
+            <option value="donor">Regular donor or activist</option>
+            <option value="nonprofit">Nonprofit or advocacy org</option>
+            <option value="business">Business or brand</option>
+            <option value="press">Journalist or researcher</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Causes I care about most</label>
+        <div class="checkbox-group">
+          <label class="check-label"><input type="checkbox" name="cause" value="climate" /> Climate & environment</label>
+          <label class="check-label"><input type="checkbox" name="cause" value="social" /> Social equity & justice</label>
+          <label class="check-label"><input type="checkbox" name="cause" value="animal" /> Animal welfare</label>
+          <label class="check-label"><input type="checkbox" name="cause" value="labor" /> Workers' rights & labor</label>
+          <label class="check-label"><input type="checkbox" name="cause" value="food" /> Food systems & agriculture</label>
+          <label class="check-label"><input type="checkbox" name="cause" value="other" /> Other / Open to all</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="thought">Anything you'd like us to know? <span style="color:var(--ash);font-size:0.7rem;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea id="thought" name="thought" placeholder="A campaign idea, a question, a word of encouragement — all welcome."></textarea>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="submit-btn" id="submitBtn">
+          Add my name
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <p class="submit-note">We'll never share your information or send you anything you haven't asked for. Unsubscribe anytime.</p>
+      </div>
+
+    </form>
+
+    <!-- SUCCESS -->
+    <div class="success-state" id="successState">
+      <div class="success-icon">✦</div>
+      <h2 class="success-title">You're in the<br>early community.</h2>
+      <p class="success-body">
+        Thank you. We'll be in touch as Kindling Action takes shape — sharing progress, early campaigns, and ways to get more involved when the time comes.
+      </p>
+      <a href="index.html" class="success-back">← Back to the home page</a>
+    </div>
+
+  </div>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    const successState = document.getElementById('successState');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      if (!email || !email.includes('@')) {
+        document.getElementById('email').style.borderColor = 'var(--ember)';
+        document.getElementById('email').focus();
+        return;
+      }
+
+      // In production, POST to your backend or a service like Mailchimp/ConvertKit here.
+      // For now, simulate success:
+      form.style.opacity = '0';
+      form.style.transform = 'translateY(8px)';
+      form.style.transition = 'opacity 0.4s, transform 0.4s';
+
+      setTimeout(() => {
+        form.style.display = 'none';
+        document.querySelector('.form-header').style.display = 'none';
+        successState.classList.add('visible');
+      }, 400);
+    });
+  </script>
+</body>
+</html>

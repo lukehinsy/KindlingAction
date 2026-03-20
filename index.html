@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kindling Action</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --char:    #18150f;
+      --cream:   #f4ede0;
+      --ember:   #c95c1a;
+      --ember2:  #e8874a;
+      --ash:     #7a7060;
+      --sage:    #3d5a40;
+      --warm:    #ede3d0;
+      --smoke:   #2a2318;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--char);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      mix-blend-mode: normal;
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      text-decoration: none;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .nav-cta {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember2);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: border-color 0.3s;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+    .nav-cta:hover { border-color: var(--ember2); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ember glow background */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: 5%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(201,92,26,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      animation: pulse 6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 4rem 6rem 5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 6vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.7s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--ember2);
+    }
+
+    .hero-body {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: rgba(244,237,224,0.65);
+      max-width: 38ch;
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.9s forwards;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--ember);
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 1rem 2rem;
+      transition: background 0.3s, gap 0.3s;
+      opacity: 0;
+      animation: fadeUp 0.9s 1.1s forwards;
+      width: fit-content;
+    }
+    .hero-cta:hover { background: var(--ember2); gap: 1.1rem; }
+    .hero-cta svg { transition: transform 0.3s; }
+    .hero-cta:hover svg { transform: translateX(3px); }
+
+    .hero-right {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeIn 1.4s 0.6s forwards;
+    }
+
+    /* ── KINDLING ILLUSTRATION ── */
+    .kindling-canvas {
+      position: relative;
+      width: 380px;
+      height: 460px;
+    }
+
+    .stick {
+      position: absolute;
+      border-radius: 2px;
+      background: linear-gradient(135deg, #5c3d1e, #3a2410);
+      transform-origin: center center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      animation: settle 1s ease-out both;
+    }
+
+    @keyframes settle {
+      from { opacity: 0; transform-origin: bottom center; }
+      to { opacity: 1; }
+    }
+
+    /* glow at the base */
+    .ember-glow {
+      position: absolute;
+      bottom: 18%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 50px;
+      background: radial-gradient(ellipse, rgba(232,135,74,0.55) 0%, rgba(201,92,26,0.2) 50%, transparent 80%);
+      border-radius: 50%;
+      animation: flicker 2.5s ease-in-out infinite;
+      filter: blur(4px);
+    }
+    .ember-glow-2 {
+      position: absolute;
+      bottom: 22%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 28px;
+      background: radial-gradient(ellipse, rgba(255,180,80,0.6) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: flicker 1.8s ease-in-out infinite reverse;
+      filter: blur(2px);
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; transform: translateX(-50%) scaleX(1); }
+      50% { opacity: 0.6; transform: translateX(-50%) scaleX(0.85); }
+    }
+
+    /* spark particles */
+    .spark {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--ember2);
+      animation: sparkFloat var(--dur, 3s) var(--delay, 0s) ease-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes sparkFloat {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+      100% { transform: translate(var(--tx, 10px), -120px) scale(0); opacity: 0; }
+    }
+
+    /* ── DIVIDER ── */
+    .divider-band {
+      background: var(--smoke);
+      padding: 5rem 5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      border-top: 1px solid rgba(244,237,224,0.06);
+      border-bottom: 1px solid rgba(244,237,224,0.06);
+    }
+
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s both;
+    }
+
+    .stat-block:nth-child(1) { animation-delay: 0.1s; }
+    .stat-block:nth-child(2) { animation-delay: 0.25s; }
+    .stat-block:nth-child(3) { animation-delay: 0.4s; }
+
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem;
+      font-weight: 300;
+      color: var(--ember2);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      color: var(--ash);
+      text-transform: uppercase;
+      line-height: 1.5;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      padding: 8rem 5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 4vw, 3.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 5rem;
+      max-width: 22ch;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(244,237,224,0.1);
+      transition: border-color 0.3s;
+    }
+    .step:hover { border-color: var(--ember); }
+
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      font-weight: 300;
+      color: rgba(201,92,26,0.2);
+      line-height: 1;
+      transition: color 0.3s;
+    }
+    .step:hover .step-num { color: rgba(201,92,26,0.5); }
+
+    .step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--cream);
+    }
+
+    .step-body {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--ash);
+    }
+
+    /* ── QUOTE BAND ── */
+    .quote-band {
+      background: var(--sage);
+      padding: 6rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-band::before {
+      content: '"';
+      position: absolute;
+      top: -2rem;
+      left: 3rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20rem;
+      color: rgba(255,255,255,0.05);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .quote-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .quote-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 3vw, 2.75rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.4;
+      margin-bottom: 2rem;
+    }
+
+    .quote-attr {
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(244,237,224,0.45);
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      padding: 10rem 5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(201,92,26,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .final-cta .section-title {
+      margin: 0.5rem auto 2rem;
+      text-align: center;
+    }
+
+    .final-cta-body {
+      font-size: 1rem;
+      color: var(--ash);
+      line-height: 1.8;
+      max-width: 44ch;
+      margin: 0 auto 3rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 5rem;
+      border-top: 1px solid rgba(244,237,224,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: var(--ash);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-note {
+      font-size: 0.75rem;
+      color: rgba(122,112,96,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* scroll-triggered reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 8rem 2.5rem 4rem; }
+      .hero-right { display: none; }
+      .divider-band { grid-template-columns: 1fr; padding: 3rem 2.5rem; }
+      .how { padding: 5rem 2.5rem; }
+      .steps { grid-template-columns: 1fr; }
+      .quote-band { padding: 4rem 2.5rem; }
+      .final-cta { padding: 6rem 2.5rem; }
+      footer { padding: 2rem 2.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+      nav { padding: 1.5rem 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">Kindling Action</a>
+    <a href="signup.html" class="nav-cta">Stay informed →</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Collective action, reimagined</p>
+      <h1 class="hero-title">
+        Small pieces.<br>
+        <em>Large fires.</em>
+      </h1>
+      <p class="hero-body">
+        One voice rarely changes the world. But a thousand people committing to act together — conditionally, collectively, at the exact same moment — that's something organizations have to listen to.
+      </p>
+      <a href="signup.html" class="hero-cta">
+        Join the early community
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="hero-right">
+      <div class="kindling-canvas" id="kindlingCanvas">
+        <div class="ember-glow"></div>
+        <div class="ember-glow-2"></div>
+        <!-- sticks generated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       STATS BAND
+  ═══════════════════════════════════════ -->
+  <div class="divider-band">
+    <div class="stat-block reveal">
+      <span class="stat-num">$0</span>
+      <span class="stat-label">Charged until the<br>condition is met</span>
+    </div>
+    <div class="stat-block reveal">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Potential leverage<br>from coordinated action</span>
+    </div>
+    <div class="stat-block reveal">
+      <span class="stat-num">1</span>
+      <span class="stat-label">Clear condition. One<br>moment of change.</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       HOW IT WORKS
+  ═══════════════════════════════════════ -->
+  <section class="how">
+    <p class="section-eyebrow reveal">How it works</p>
+    <h2 class="section-title reveal">From individual intent to collective force.</h2>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-title">Set the condition</div>
+        <p class="step-body">A campaign defines a specific, verifiable action — a policy change, a certification, a commitment — that an organization must take.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-title">Make your pledge</div>
+        <p class="step-body">You commit to donate, purchase, or act. Your card is authorized but never charged — until the condition is met. No action from them, no cost to you.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-title">Watch it ignite</div>
+        <p class="step-body">When the organization acts, the pledges fire. Thousands of commitments become real — at once. That's leverage that can't be ignored.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       QUOTE
+  ═══════════════════════════════════════ -->
+  <div class="quote-band">
+    <div class="quote-inner">
+      <p class="quote-text reveal">
+        "Give me a lever long enough and a fulcrum on which to place it, and I shall move the world."
+      </p>
+      <p class="quote-attr reveal">Archimedes · and the quiet logic behind everything we're building</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       FINAL CTA
+  ═══════════════════════════════════════ -->
+  <section class="final-cta">
+    <p class="section-eyebrow reveal">We're building in the open</p>
+    <h2 class="section-title reveal">Be part of what<br>comes next.</h2>
+    <p class="final-cta-body reveal">
+      Kindling Action is in early development. We're looking for people who believe that coordinated, conditional commitment is one of the most underutilized tools for change we have.
+    </p>
+    <a href="signup.html" class="hero-cta reveal">
+      Get early access
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </section>
+
+  <footer>
+    <span class="footer-logo">Kindling Action</span>
+    <span class="footer-note">© 2026 · Early stage · Built with conviction</span>
+  </footer>
+
+  <script>
+    // ── BUILD KINDLING ILLUSTRATION ──
+    const canvas = document.getElementById('kindlingCanvas');
+    if (canvas) {
+      const sticks = [
+        // bottom layer — horizontal
+        { w: 180, h: 7, left: 100, bottom: 120, rot: 5,   delay: 0.8 },
+        { w: 160, h: 6, left: 80,  bottom: 112, rot: -8,  delay: 1.0 },
+        // second layer
+        { w: 140, h: 6, left: 120, bottom: 150, rot: 22,  delay: 1.1 },
+        { w: 150, h: 6, left: 90,  bottom: 145, rot: -18, delay: 1.2 },
+        { w: 130, h: 5, left: 110, bottom: 160, rot: 50,  delay: 1.3 },
+        // third layer — more upright
+        { w: 120, h: 5, left: 145, bottom: 170, rot: 65,  delay: 1.35 },
+        { w: 120, h: 5, left: 115, bottom: 175, rot: -60, delay: 1.4 },
+        // lean-in sticks
+        { w: 110, h: 5, left: 160, bottom: 185, rot: 75,  delay: 1.45 },
+        { w: 100, h: 4, left: 105, bottom: 188, rot: -72, delay: 1.5 },
+        { w: 90,  h: 4, left: 175, bottom: 200, rot: 82,  delay: 1.55 },
+        { w: 90,  h: 4, left: 98,  bottom: 204, rot: -80, delay: 1.6 },
+        // small pieces — top of pile
+        { w: 70,  h: 4, left: 170, bottom: 230, rot: 88,  delay: 1.65 },
+        { w: 65,  h: 3, left: 140, bottom: 235, rot: -85, delay: 1.7 },
+        { w: 60,  h: 3, left: 180, bottom: 255, rot: 85,  delay: 1.75 },
+        { w: 55,  h: 3, left: 138, bottom: 258, rot: -82, delay: 1.8 },
+        // scattered floor pieces
+        { w: 200, h: 5, left: 60,  bottom: 100, rot: 3,   delay: 0.9 },
+        { w: 90,  h: 4, left: 260, bottom: 118, rot: -12, delay: 1.05 },
+        { w: 80,  h: 4, left: 50,  bottom: 130, rot: 15,  delay: 1.15 },
+      ];
+
+      sticks.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'stick';
+        el.style.cssText = `
+          width: ${s.w}px;
+          height: ${s.h}px;
+          left: ${s.left}px;
+          bottom: ${s.bottom}px;
+          transform: rotate(${s.rot}deg);
+          animation-delay: ${s.delay}s;
+          opacity: 0;
+        `;
+        canvas.appendChild(el);
+        // fade sticks in after delay
+        setTimeout(() => { el.style.opacity = '1'; el.style.transition = 'opacity 0.4s'; }, s.delay * 1000);
+      });
+
+      // sparks
+      const sparkData = [
+        { left: 185, bottom: 285, tx: '-15px', dur: '3.2s', delay: '2.2s' },
+        { left: 195, bottom: 270, tx: '12px',  dur: '2.8s', delay: '2.6s' },
+        { left: 178, bottom: 290, tx: '-8px',  dur: '3.8s', delay: '2s'   },
+        { left: 200, bottom: 280, tx: '20px',  dur: '2.5s', delay: '3s'   },
+        { left: 170, bottom: 278, tx: '-22px', dur: '4s',   delay: '2.4s' },
+        { left: 192, bottom: 295, tx: '5px',   dur: '3s',   delay: '3.2s' },
+      ];
+
+      sparkData.forEach(sp => {
+        const el = document.createElement('div');
+        el.className = 'spark';
+        el.style.cssText = `
+          left: ${sp.left}px;
+          bottom: ${sp.bottom}px;
+          --tx: ${sp.tx};
+          --dur: ${sp.dur};
+          --delay: ${sp.delay};
+        `;
+        canvas.appendChild(el);
+      });
+    }
+
+    // ── SCROLL REVEAL ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
