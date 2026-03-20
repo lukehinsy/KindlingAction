@@ -473,9 +473,32 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; min-height: auto; }
-      .hero-left { padding: 8rem 2.5rem 4rem; }
-      .hero-right { display: none; }
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .hero-left {
+        padding: 7rem 2.5rem 2rem;
+      }
+
+      /* show animation below text, scaled to fit viewport */
+      .hero-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 0 3rem;
+        min-height: 260px;
+        overflow: hidden;
+      }
+
+      .kindling-canvas {
+        transform: scale(0.62);
+        transform-origin: center top;
+        /* keep the visual height proportional after scaling */
+        margin-bottom: calc(-460px * 0.38);
+      }
+
       .divider-band { grid-template-columns: 1fr; padding: 3rem 2.5rem; }
       .how { padding: 5rem 2.5rem; }
       .steps { grid-template-columns: 1fr; }
