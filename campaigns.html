@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaigns · Kindling Action</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --char:    #18150f;
+      --cream:   #f4ede0;
+      --ember:   #c95c1a;
+      --ember2:  #e8874a;
+      --ash:     #7a7060;
+      --sage:    #3d5a40;
+      --sage2:   #5a8a5e;
+      --smoke:   #2a2318;
+      --panel:   #211d15;
+      --card:    #1e1a12;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--char);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      padding: 1.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(24,21,15,0.95) 0%, transparent 100%);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ash);
+      text-decoration: none;
+      transition: color 0.25s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--cream); }
+    .nav-link.active { color: var(--ember2); }
+
+    .nav-cta {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember2);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: border-color 0.3s;
+    }
+    .nav-cta:hover { border-color: var(--ember2); }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 9rem 5rem 4rem;
+      border-bottom: 1px solid rgba(244,237,224,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-header::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(ellipse at top right, rgba(201,92,26,0.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .page-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 5vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.35s forwards;
+    }
+
+    .page-title em {
+      font-style: italic;
+      color: var(--ember2);
+    }
+
+    .page-subtitle {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--ash);
+      max-width: 52ch;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      position: sticky;
+      top: 72px;
+      z-index: 150;
+      background: rgba(24,21,15,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(244,237,224,0.06);
+      padding: 1rem 5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border: 1px solid rgba(244,237,224,0.12);
+      color: var(--ash);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+    }
+    .pill:hover { border-color: rgba(244,237,224,0.3); color: var(--cream); }
+    .pill.active {
+      background: var(--ember);
+      border-color: var(--ember);
+      color: var(--cream);
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-input {
+      background: rgba(244,237,224,0.04);
+      border: 1px solid rgba(244,237,224,0.1);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 300;
+      padding: 0.4rem 0.85rem 0.4rem 2rem;
+      outline: none;
+      width: 200px;
+      transition: border-color 0.25s, width 0.3s;
+    }
+    .search-input:focus {
+      border-color: var(--ember);
+      width: 260px;
+    }
+    .search-input::placeholder { color: rgba(122,112,96,0.5); }
+
+    .search-icon {
+      position: absolute;
+      left: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ash);
+      pointer-events: none;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      padding: 4rem 5rem 8rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── RESULTS META ── */
+    .results-meta {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-bottom: 2.5rem;
+      min-height: 1.2em;
+    }
+
+    /* ── CAMPAIGN GRID ── */
+    .campaign-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    /* ── CAMPAIGN CARD ── */
+    .campaign-card {
+      background: var(--card);
+      border: 1px solid rgba(244,237,224,0.07);
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.3s, transform 0.3s;
+      opacity: 0;
+      animation: fadeUp 0.6s both;
+      cursor: default;
+    }
+    .campaign-card:hover {
+      border-color: rgba(201,92,26,0.35);
+      transform: translateY(-3px);
+    }
+
+    .card-top {
+      padding: 1.75rem 1.75rem 0;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+
+    .category-badge {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      font-weight: 400;
+    }
+
+    /* category colors */
+    .badge-climate { background: rgba(61,90,64,0.35);  color: #8ab98e; border: 1px solid rgba(61,90,64,0.5); }
+    .badge-social  { background: rgba(42,71,105,0.35); color: #7aaee0; border: 1px solid rgba(42,71,105,0.5); }
+    .badge-animal  { background: rgba(105,72,42,0.35); color: #e0a97a; border: 1px solid rgba(105,72,42,0.5); }
+    .badge-labor   { background: rgba(72,42,105,0.35); color: #b07ae0; border: 1px solid rgba(72,42,105,0.5); }
+    .badge-food    { background: rgba(90,64,30,0.35);  color: #c9a96e; border: 1px solid rgba(90,64,30,0.5); }
+    .badge-other   { background: rgba(60,55,48,0.35);  color: #a09080; border: 1px solid rgba(60,55,48,0.5); }
+
+    .card-deadline {
+      font-size: 0.72rem;
+      color: var(--ash);
+      letter-spacing: 0.04em;
+    }
+    .card-deadline.urgent { color: var(--ember2); }
+
+    .card-org {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--cream);
+      margin-bottom: 0.9rem;
+    }
+
+    .card-condition {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--ember2);
+      padding: 0.85rem 1rem;
+      border-left: 2px solid var(--ember);
+      background: rgba(201,92,26,0.05);
+      margin-bottom: 1.1rem;
+    }
+
+    .card-description {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--ash);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── PROGRESS ── */
+    .card-progress {
+      padding: 1.25rem 1.75rem;
+      border-top: 1px solid rgba(244,237,224,0.05);
+      background: rgba(0,0,0,0.15);
+    }
+
+    .progress-track {
+      height: 3px;
+      background: rgba(244,237,224,0.08);
+      margin-bottom: 0.85rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--ember), var(--ember2));
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0%;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .progress-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1;
+    }
+
+    .progress-amount span {
+      font-size: 0.75rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ash);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    .progress-right {
+      text-align: right;
+    }
+
+    .pledge-count {
+      font-size: 0.82rem;
+      color: var(--ash);
+      line-height: 1.5;
+    }
+
+    .pledge-count strong {
+      color: var(--cream);
+      font-weight: 400;
+    }
+
+    /* ── CARD FOOTER ── */
+    .card-footer {
+      padding: 1.25rem 1.75rem;
+      border-top: 1px solid rgba(244,237,224,0.05);
+    }
+
+    .pledge-btn {
+      width: 100%;
+      background: var(--ember);
+      color: var(--cream);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: background 0.25s, gap 0.25s;
+    }
+    .pledge-btn:hover { background: var(--ember2); gap: 0.9rem; }
+
+    /* ── SKELETON LOADING ── */
+    .skeleton-card {
+      background: var(--card);
+      border: 1px solid rgba(244,237,224,0.07);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg,
+        rgba(244,237,224,0.04) 25%,
+        rgba(244,237,224,0.08) 50%,
+        rgba(244,237,224,0.04) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 2px;
+    }
+    .sk-badge  { width: 80px;  height: 20px; }
+    .sk-org    { width: 120px; height: 12px; }
+    .sk-title  { width: 100%;  height: 28px; }
+    .sk-title2 { width: 70%;   height: 28px; }
+    .sk-body   { width: 100%;  height: 14px; }
+    .sk-body2  { width: 85%;   height: 14px; }
+    .sk-bar    { width: 100%;  height: 3px; margin: 0.5rem 0; }
+    .sk-btn    { width: 100%;  height: 42px; margin-top: 0.5rem; }
+
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* ── EMPTY / ERROR STATES ── */
+    .state-message {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 6rem 2rem;
+    }
+
+    .state-icon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      color: rgba(201,92,26,0.2);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .state-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: var(--cream);
+      margin-bottom: 0.75rem;
+    }
+
+    .state-body {
+      font-size: 0.9rem;
+      color: var(--ash);
+      line-height: 1.7;
+      max-width: 36ch;
+      margin: 0 auto;
+    }
+
+    /* ── PLEDGE MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(24,21,15,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--panel);
+      border: 1px solid rgba(244,237,224,0.1);
+      max-width: 480px;
+      width: 100%;
+      padding: 3rem;
+      position: relative;
+      transform: translateY(16px);
+      transition: transform 0.3s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      color: var(--ash);
+      cursor: pointer;
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 0.25rem;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--cream); }
+
+    .modal-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 300;
+      line-height: 1.15;
+      color: var(--cream);
+      margin-bottom: 1rem;
+    }
+
+    .modal-campaign-name {
+      font-style: italic;
+      color: var(--ember2);
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--ash);
+      margin-bottom: 2rem;
+    }
+
+    .modal-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--ember);
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.9rem 1.5rem;
+      transition: background 0.25s, gap 0.25s;
+    }
+    .modal-cta:hover { background: var(--ember2); gap: 0.9rem; }
+
+    .modal-note {
+      font-size: 0.75rem;
+      color: rgba(122,112,96,0.5);
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .campaign-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 1.25rem 1.5rem; }
+      .nav-links { gap: 1.25rem; }
+      .page-header { padding: 7rem 1.5rem 3rem; }
+      .filter-bar { padding: 0.85rem 1.5rem; top: 64px; }
+      .main { padding: 2.5rem 1.5rem 6rem; }
+      .campaign-grid { grid-template-columns: 1fr; }
+      .search-input, .search-input:focus { width: 100%; }
+      .filter-pills { order: 2; width: 100%; }
+      .search-wrap { order: 1; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAV
+  ═══════════════════════════════════════ -->
+  <nav>
+    <a href="index.html" class="nav-logo">Kindling Action</a>
+    <div class="nav-links">
+      <a href="campaigns.html" class="nav-link active">Campaigns</a>
+      <a href="signup.html" class="nav-cta">Stay informed →</a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       PAGE HEADER
+  ═══════════════════════════════════════ -->
+  <header class="page-header">
+    <p class="page-eyebrow">Active campaigns</p>
+    <h1 class="page-title">Where small pledges<br>become <em>real leverage.</em></h1>
+    <p class="page-subtitle">
+      Each campaign below is a coordinated commitment. Browse, explore the conditions,
+      and sign up to be notified when pledging opens.
+    </p>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       FILTER BAR
+  ═══════════════════════════════════════ -->
+  <div class="filter-bar">
+    <div class="filter-pills" id="filterPills">
+      <button class="pill active" data-filter="all">All</button>
+      <button class="pill" data-filter="climate">Climate</button>
+      <button class="pill" data-filter="social">Social</button>
+      <button class="pill" data-filter="animal">Animal</button>
+      <button class="pill" data-filter="labor">Labor</button>
+      <button class="pill" data-filter="food">Food</button>
+      <button class="pill" data-filter="other">Other</button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Search campaigns…"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main class="main">
+    <p class="results-meta" id="resultsMeta"></p>
+    <div class="campaign-grid" id="campaignGrid">
+      <!-- Skeleton loaders shown while fetching -->
+      <div class="skeleton-card">
+        <div class="skeleton sk-badge"></div>
+        <div class="skeleton sk-org"></div>
+        <div class="skeleton sk-title"></div>
+        <div class="skeleton sk-title2"></div>
+        <div class="skeleton sk-body"></div>
+        <div class="skeleton sk-body2"></div>
+        <div class="skeleton sk-bar"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       PLEDGE MODAL
+  ═══════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <p class="modal-eyebrow">Coming soon</p>
+      <h2 class="modal-title">
+        Pledge for<br>
+        <span class="modal-campaign-name" id="modalCampaignName">this campaign</span>
+      </h2>
+      <p class="modal-body">
+        Pledging isn't open yet — we're building the payment infrastructure
+        to hold commitments securely until conditions are verified.
+        Sign up to the early list and you'll be the first to know when
+        this campaign opens for pledges.
+      </p>
+      <a href="signup.html" class="modal-cta">
+        Join the early list
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <p class="modal-note">No payment information collected at this stage.</p>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════════════════
+    // CONFIGURATION — replace with your actual Supabase project values
+    // Found in: Supabase Dashboard → Project Settings → API
+    // ══════════════════════════════════════════════════════════════════
+    const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+    const SUPABASE_ANON = 'YOUR_ANON_KEY_HERE';
+
+    // ── State ──────────────────────────────────────────────────────────
+    let allCampaigns = [];   // full dataset fetched once
+    let activeFilter = 'all';
+    let searchQuery  = '';
+
+    // ── Fetch ──────────────────────────────────────────────────────────
+    async function fetchCampaigns() {
+      // Fetch campaign_info and embed campaign_donors in one request.
+      // Supabase REST supports resource embedding via the select param.
+      const url = `${SUPABASE_URL}/rest/v1/campaign_info` +
+        `?select=*,campaign_donors(pledge_amount)` +
+        `&active=eq.true` +
+        `&order=created_at.desc`;
+
+      const res = await fetch(url, {
+        headers: {
+          'apikey':        SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+        }
+      });
+
+      if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
+      return res.json();
+    }
+
+    // ── Aggregate donor data per campaign ─────────────────────────────
+    function aggregateDonors(campaign) {
+      const donors = campaign.campaign_donors ?? [];
+      const totalPledged = donors.reduce((sum, d) => sum + (d.pledge_amount || 0), 0);
+      const pledgeCount  = donors.length;
+      return { totalPledged, pledgeCount };
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────
+    function renderCampaigns(campaigns) {
+      const grid = document.getElementById('campaignGrid');
+      const meta = document.getElementById('resultsMeta');
+
+      if (campaigns.length === 0) {
+        grid.innerHTML = `
+          <div class="state-message">
+            <div class="state-icon">∅</div>
+            <h3 class="state-title">No campaigns match</h3>
+            <p class="state-body">Try a different filter or search term.</p>
+          </div>`;
+        meta.textContent = '0 campaigns';
+        return;
+      }
+
+      meta.textContent = campaigns.length === 1
+        ? '1 active campaign'
+        : `${campaigns.length} active campaigns`;
+
+      grid.innerHTML = campaigns.map((c, i) => {
+        const { totalPledged, pledgeCount } = aggregateDonors(c);
+        const pct = c.target_amount > 0
+          ? Math.min(100, Math.round((totalPledged / c.target_amount) * 100))
+          : 0;
+        const daysLeft   = daysRemaining(c.deadline);
+        const urgentClass = daysLeft !== null && daysLeft <= 14 ? 'urgent' : '';
+        const deadlineStr = daysLeft === null    ? ''
+          : daysLeft <= 0   ? 'Deadline passed'
+          : daysLeft === 1  ? '1 day left'
+          : `${daysLeft} days left`;
+
+        return `
+          <article class="campaign-card" style="animation-delay:${i * 0.08}s">
+            <div class="card-top">
+              <div class="card-meta">
+                <span class="category-badge badge-${c.category ?? 'other'}">
+                  ${capitalise(c.category ?? 'other')}
+                </span>
+                ${deadlineStr
+                  ? `<span class="card-deadline ${urgentClass}">${deadlineStr}</span>`
+                  : ''}
+              </div>
+              <p class="card-org">${escHtml(c.org_name ?? '')}</p>
+              <h2 class="card-title">${escHtml(c.title)}</h2>
+              <blockquote class="card-condition">${escHtml(c.condition ?? '')}</blockquote>
+              <p class="card-description">${escHtml(c.description ?? '')}</p>
+            </div>
+
+            <div class="card-progress">
+              <div class="progress-track">
+                <div class="progress-fill" data-pct="${pct}" style="width:0%"></div>
+              </div>
+              <div class="progress-stats">
+                <div class="progress-amount">
+                  ${formatCurrency(totalPledged)}
+                  <span>of ${formatCurrency(c.target_amount)} goal</span>
+                </div>
+                <div class="progress-right">
+                  <p class="pledge-count">
+                    <strong>${pledgeCount}</strong>
+                    ${pledgeCount === 1 ? 'pledge' : 'pledges'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button
+                class="pledge-btn"
+                onclick="openModal(${escAttr(JSON.stringify(c.title))})"
+              >
+                Make a pledge
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </article>`;
+      }).join('');
+
+      // Animate progress bars after a short delay so they visibly fill
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          document.querySelectorAll('.progress-fill').forEach(bar => {
+            bar.style.width = bar.dataset.pct + '%';
+          });
+        }, 200);
+      });
+    }
+
+    // ── Filter + Search ────────────────────────────────────────────────
+    function applyFilters() {
+      let filtered = allCampaigns;
+
+      if (activeFilter !== 'all') {
+        filtered = filtered.filter(c => c.category === activeFilter);
+      }
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(c =>
+          (c.title      ?? '').toLowerCase().includes(q) ||
+          (c.org_name   ?? '').toLowerCase().includes(q) ||
+          (c.condition  ?? '').toLowerCase().includes(q) ||
+          (c.description ?? '').toLowerCase().includes(q)
+        );
+      }
+
+      renderCampaigns(filtered);
+    }
+
+    // ── Pills ──────────────────────────────────────────────────────────
+    document.getElementById('filterPills').addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeFilter = pill.dataset.filter;
+      applyFilters();
+    });
+
+    // ── Search ─────────────────────────────────────────────────────────
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      applyFilters();
+    });
+
+    // ── Modal ──────────────────────────────────────────────────────────
+    function openModal(campaignTitle) {
+      document.getElementById('modalCampaignName').textContent = campaignTitle;
+      document.getElementById('modalOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ── Helpers ────────────────────────────────────────────────────────
+    function daysRemaining(dateStr) {
+      if (!dateStr) return null;
+      const diff = new Date(dateStr) - new Date();
+      return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function formatCurrency(n) {
+      if (!n && n !== 0) return '$0';
+      return '$' + Math.round(n).toLocaleString('en-US');
+    }
+
+    function capitalise(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escAttr(str) {
+      // Safe for use inside an onclick="..." attribute
+      return String(str).replace(/'/g, "\\'");
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────
+    (async () => {
+      try {
+        const data = await fetchCampaigns();
+        allCampaigns = data;
+        applyFilters();
+      } catch (err) {
+        console.error('Failed to load campaigns:', err);
+        document.getElementById('campaignGrid').innerHTML = `
+          <div class="state-message">
+            <div class="state-icon">⚠</div>
+            <h3 class="state-title">Couldn't load campaigns</h3>
+            <p class="state-body">
+              Check that your Supabase URL and anon key are set correctly
+              in campaigns.html, and that RLS policies allow public reads.
+            </p>
+          </div>`;
+        document.getElementById('resultsMeta').textContent = '';
+      }
+    })();
+  </script>
+</body>
+</html>
