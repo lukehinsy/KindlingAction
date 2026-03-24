@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <title>Stay Informed · Kindling Action</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -484,25 +485,26 @@
   <!-- ═══════════════════════════════════════
        RIGHT PANEL — FORM
   ═══════════════════════════════════════ -->
-  <div class="right-panel">
 
+  <div class="right-panel">
+ 
     <div class="form-header">
       <h2>Stay informed</h2>
       <p>Tell us a little about yourself so we can keep you in the loop.</p>
     </div>
-
+ 
     <form class="signup-form" id="signupForm" novalidate>
-
+ 
       <div class="field">
         <label for="name">Your name</label>
         <input type="text" id="name" name="name" placeholder="First and last" autocomplete="name" />
       </div>
-
+ 
       <div class="field">
         <label for="email">Email address <span style="color:var(--ember)">*</span></label>
         <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
       </div>
-
+ 
       <div class="field">
         <label for="role">I am primarily a…</label>
         <div class="select-wrap">
@@ -517,7 +519,7 @@
           </select>
         </div>
       </div>
-
+ 
       <div class="field">
         <label>Causes I care about most</label>
         <div class="checkbox-group">
@@ -529,25 +531,38 @@
           <label class="check-label"><input type="checkbox" name="cause" value="other" /> Other / Open to all</label>
         </div>
       </div>
-
+ 
       <div class="field">
         <label for="thought">Anything you'd like us to know? <span style="color:var(--ash);font-size:0.7rem;text-transform:none;letter-spacing:0">(optional)</span></label>
         <textarea id="thought" name="thought" placeholder="A campaign idea, a question, a word of encouragement — all welcome."></textarea>
       </div>
-
+ 
+      <!-- TURNSTILE — replace data-sitekey with your real key from dash.cloudflare.com -->
+      <div class="turnstile-wrap">
+        <label>Human verification</label>
+        <div
+          class="cf-turnstile"
+          data-sitekey="0x4AAAAAACt07lVf3em48pHT"
+          data-theme="dark"
+          data-size="normal"
+        ></div>
+        <span class="turnstile-error" id="turnstileError">
+          Please complete the verification above before submitting.
+        </span>
+      </div>
+ 
       <div class="submit-row">
         <button type="submit" class="submit-btn" id="submitBtn">
-          NOT CURRENTLY FUNCTIONAL  
-          (making sure we have a secure database first!)
+          Add my name
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
         <p class="submit-note">We'll never share your information or send you anything you haven't asked for. Unsubscribe anytime.</p>
       </div>
-
+ 
     </form>
-
+ 
     <!-- SUCCESS -->
     <div class="success-state" id="successState">
       <div class="success-icon">✦</div>
@@ -557,35 +572,121 @@
       </p>
       <a href="index.html" class="success-back">← Back to the home page</a>
     </div>
-
+ 
   </div>
-
+ 
   <script>
-    const form = document.getElementById('signupForm');
-    const successState = document.getElementById('successState');
-
-    form.addEventListener('submit', function(e) {
+    // ── Replace this URL with your deployed Worker URL ────────────────────
+    // e.g. https://kindling-signup.YOUR-SUBDOMAIN.workers.dev
+    const WORKER_URL = 'https://throbbing-fog-1558.hinsenkamp.workers.dev';
+ 
+    const form          = document.getElementById('signupForm');
+    const successState  = document.getElementById('successState');
+    const turnstileError = document.getElementById('turnstileError');
+    const submitBtn     = document.getElementById('submitBtn');
+ 
+    // Clear Turnstile error as soon as widget is solved
+    window.addEventListener('message', (evt) => {
+      if (evt.data && evt.data['cf-turnstile-response']) {
+        turnstileError.classList.remove('visible');
+      }
+    });
+ 
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
-
-      const email = document.getElementById('email').value.trim();
+ 
+      // 1. Validate email
+      const emailInput = document.getElementById('email');
+      const email = emailInput.value.trim();
       if (!email || !email.includes('@')) {
-        document.getElementById('email').style.borderColor = 'var(--ember)';
-        document.getElementById('email').focus();
+        emailInput.style.borderColor = 'var(--ember)';
+        emailInput.focus();
         return;
       }
-
-      // In production, POST to your backend or a service like Mailchimp/ConvertKit here.
-      // For now, simulate success:
-      form.style.opacity = '0';
-      form.style.transform = 'translateY(8px)';
-      form.style.transition = 'opacity 0.4s, transform 0.4s';
-
-      setTimeout(() => {
-        form.style.display = 'none';
-        document.querySelector('.form-header').style.display = 'none';
-        successState.classList.add('visible');
-      }, 400);
+      emailInput.style.borderColor = '';
+ 
+      // 2. Validate Turnstile
+      const turnstileToken = typeof turnstile !== 'undefined' ? turnstile.getResponse() : '';
+      if (!turnstileToken) {
+        turnstileError.classList.add('visible');
+        document.querySelector('.cf-turnstile').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      turnstileError.classList.remove('visible');
+ 
+      // 3. Gather form data
+      const causes = [...document.querySelectorAll('input[name="cause"]:checked')]
+        .map(cb => cb.value);
+ 
+      const payload = {
+        name:           document.getElementById('name').value,
+        email:          email,
+        role:           document.getElementById('role').value,
+        causes:         causes,
+        thought:        document.getElementById('thought').value,
+        turnstileToken: turnstileToken,
+      };
+ 
+      // 4. Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
+      submitBtn.innerHTML = 'Sending&hellip;';
+ 
+      // 5. POST to Cloudflare Worker
+      try {
+        const res = await fetch(WORKER_URL, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
+        });
+ 
+        const data = await res.json();
+ 
+        if (res.ok && data.ok) {
+          // Success — animate form out
+          form.style.opacity    = '0';
+          form.style.transform  = 'translateY(8px)';
+          form.style.transition = 'opacity 0.4s, transform 0.4s';
+          setTimeout(() => {
+            form.style.display = 'none';
+            document.querySelector('.form-header').style.display = 'none';
+            successState.classList.add('visible');
+          }, 400);
+        } else {
+          // Server returned an error
+          showSubmitError(data.error || 'Something went wrong — please try again.');
+          resetButton();
+        }
+ 
+      } catch (err) {
+        // Network failure
+        showSubmitError('Could not reach the server. Check your connection and try again.');
+        resetButton();
+      }
     });
+ 
+    function resetButton() {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.innerHTML = `Add my name
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+      // Reset Turnstile widget so user can try again
+      if (typeof turnstile !== 'undefined') turnstile.reset();
+    }
+ 
+    function showSubmitError(message) {
+      let errEl = document.getElementById('submitError');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.id = 'submitError';
+        errEl.style.cssText = 'font-size:0.82rem;color:var(--ember);margin-top:0.5rem;';
+        submitBtn.parentNode.insertBefore(errEl, submitBtn.nextSibling);
+      }
+      errEl.textContent = message;
+    }
   </script>
 </body>
 </html>
